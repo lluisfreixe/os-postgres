@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.DecimalFormat;
 
-@WebServlet("/DonarAlta")
-public class DonarAlta extends HttpServlet {
+@WebServlet("/AltaBBDD")
+public class AltaBBDD extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final String url = "jdbc:postgresql://localhost/postgres";
 	private final String user = "postgres";
@@ -24,7 +24,7 @@ public class DonarAlta extends HttpServlet {
     private static final String delete1 = "DELETE FROM persona;";
 
 
-	public DonarAlta() {
+	public AltaBBDD() {
 		super();
 	}
 
