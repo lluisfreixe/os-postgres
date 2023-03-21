@@ -17,6 +17,7 @@ import java.text.DecimalFormat;
 public class AltaBBDD extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final String url = "jdbc:postgresql://localhost/postgres";
+	private final String url2 = "jdbc:postgresql://172.30.136.65:5432/postgres";
 	private final String user = "postgres";
 	private final String password = "password";
 	private static final String query1 = "SELECT MAX(idpersona) idpersona FROM persona;";
@@ -40,7 +41,7 @@ public class AltaBBDD extends HttpServlet {
                 missatge = "Error al registrar el driver de PostgreSQL: " + ex;
             }
             Connection conn = null;
-            conn = DriverManager.getConnection(url, user, password);
+            conn = DriverManager.getConnection(url2, user, password);
             conn.setAutoCommit(false);
             
             PreparedStatement preparedStatement = conn.prepareStatement(query1);
