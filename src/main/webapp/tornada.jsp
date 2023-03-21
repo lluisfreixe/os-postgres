@@ -1,10 +1,11 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <title>Sortida_Web</title>
 </head>
+
 <body>
 
 	<%
@@ -16,4 +17,5 @@
 	<p>
 	<p>
 </body>
+
 </html>
