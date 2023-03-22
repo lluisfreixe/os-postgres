@@ -13,13 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.DecimalFormat;
 
-@WebServlet("/AltaBBDD")
+@WebServlet("/")
 public class AltaBBDD extends HttpServlet {
 	
 	// Declarar variables
 	
 	private static final long serialVersionUID = 1L;
-	private final String url = "jdbc:postgresql://localhost/postgres";
+	private final String url1 = "jdbc:postgresql://localhost/postgres";
 	private final String url2 = "jdbc:postgresql://172.30.136.65:5432/postgres";
 	private final String user = "postgres";
 	private final String password = "password";
@@ -35,6 +35,7 @@ public class AltaBBDD extends HttpServlet {
 	protected void request(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
+	    String ipAddress = request.getRemoteAddr();
 		String missatge = "";
 		
 		try {
@@ -44,7 +45,11 @@ public class AltaBBDD extends HttpServlet {
                 missatge = "Error al registrar el driver de PostgreSQL: " + ex;
             }
             Connection conn = null;
-            conn = DriverManager.getConnection(url2, user, password);
+            if (ipAddress.equals("127.0.0.1")) {
+                conn = DriverManager.getConnection(url1, user, password);
+            } else {
+                conn = DriverManager.getConnection(url2, user, password);
+            }
             conn.setAutoCommit(false);
             
             PreparedStatement preparedStatement = conn.prepareStatement(query1);
@@ -95,7 +100,7 @@ public class AltaBBDD extends HttpServlet {
             
             conn.close();
         } catch (java.sql.SQLException sqle) {
-        	missatge = "Error: " + sqle;
+        	missatge = "Error de SQLException: " + sqle;
         }
 
 		request.setAttribute("miss", missatge);
