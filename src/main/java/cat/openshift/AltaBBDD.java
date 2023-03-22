@@ -16,7 +16,7 @@ import java.text.DecimalFormat;
 @WebServlet("/")
 public class AltaBBDD extends HttpServlet {
 	
-	// Declarar variables
+	// Declarar variables - v2
 	
 	private static final long serialVersionUID = 1L;
 	private final String url1 = "jdbc:postgresql://localhost/postgres";
