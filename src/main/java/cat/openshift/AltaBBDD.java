@@ -48,6 +48,9 @@ public class AltaBBDD extends HttpServlet {
 		// Connectar-se a la BBDD
 		// ================================================
 		Connection conn = null;
+		PreparedStatement preparedStatement;
+		ResultSet rs;
+
 		try {
 			if (ipAddress.equals("127.0.0.1")) {
 				conn = DriverManager.getConnection(url1, user, password);
@@ -62,8 +65,8 @@ public class AltaBBDD extends HttpServlet {
 		// Executar la sentencia SQL
 		// ================================================
 		try {
-			PreparedStatement preparedStatement = conn.prepareStatement(query1);
-			ResultSet rs = preparedStatement.executeQuery();
+			preparedStatement = conn.prepareStatement(query1);
+			rs = preparedStatement.executeQuery();
 			int num = 0, comm = 0, cont_comm = 0;
 			String nom, ced;
 
@@ -108,6 +111,8 @@ public class AltaBBDD extends HttpServlet {
 			conn.close();
 		} catch (java.sql.SQLException sqle) {
 			missatge = "Error de SQLException: " + sqle;
+		} catch (Exception e) {
+			missatge = "Error de Exception: " + e;
 		}
 
 		request.setAttribute("miss", missatge);
