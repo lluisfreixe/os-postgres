@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
   CREATE TABLE [IF NOT EXISTS] persona (
    idpersona INT NOT NULL,
