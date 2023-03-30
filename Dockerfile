@@ -3,4 +3,4 @@ USER root
 COPY ./target/ROOT.war /usr/local/tomcat/webapps/
 # script  per crear la latula de postgres
 COPY taula.sh taula.sh
-ENTRYPOINT ["sh", "/taula.sh"]
+ENTRYPOINT ["sh", "/usr/local/tomcat/taula.sh"]
