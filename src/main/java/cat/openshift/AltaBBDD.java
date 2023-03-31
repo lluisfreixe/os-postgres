@@ -5,13 +5,18 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @WebServlet("/")
 public class AltaBBDD extends HttpServlet {
@@ -23,6 +28,7 @@ public class AltaBBDD extends HttpServlet {
 	private final String url2 = "jdbc:postgresql://172.30.136.65:5432/postgres";
 	private final String user = "postgres";
 	private final String password = "password";
+	private static final String create1 = "CREATE TABLE persona (idpersona INT NOT NULL, nombre VARCHAR (30) NOT NULL, cedula VARCHAR (30) NOT NULL)";
 	private static final String query1 = "SELECT MAX(idpersona) idpersona FROM persona;";
 	private static final String insert1 = "INSERT INTO persona (idpersona, nombre, cedula) VALUES (?, ?, ?);";
 	private static final String delete1 = "DELETE FROM persona;";
@@ -48,8 +54,13 @@ public class AltaBBDD extends HttpServlet {
 		// Connectar-se a la BBDD
 		// ================================================
 		Connection conn = null;
-		PreparedStatement preparedStatement;
-		ResultSet rs;
+		PreparedStatement preparedStatement = null;
+		ResultSet rs = null;
+		Statement stmt = null;
+		Boolean nova = false;
+		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+		Date date = new Date();
+		String hora = dateFormat.format(date);
 
 		try {
 			if (ipAddress.equals("127.0.0.1")) {
@@ -57,7 +68,6 @@ public class AltaBBDD extends HttpServlet {
 			} else {
 				conn = DriverManager.getConnection(url2, user, password);
 			}
-			conn.setAutoCommit(false);
 		} catch (java.sql.SQLException sqle) {
 			missatge = "Error de connexio: " + sqle;
 		}
@@ -65,31 +75,54 @@ public class AltaBBDD extends HttpServlet {
 		// Executar la sentencia SQL
 		// ================================================
 		try {
-			preparedStatement = conn.prepareStatement(query1);
-			rs = preparedStatement.executeQuery();
+			try {
+				preparedStatement = conn.prepareStatement(query1);
+				rs = preparedStatement.executeQuery();
+			} catch (Exception e) {
+				nova = true;
+			}
+
+			if (nova.equals(true)) {
+				try {
+					conn.setAutoCommit(true);
+					stmt = conn.createStatement();
+					stmt.executeUpdate(create1);
+					//conn.commit();
+				} catch (java.sql.SQLException sqle) {
+					missatge = "Error de SQLException: " + sqle;
+				} catch (Exception e) {
+					missatge = "Error de Exception: " + e;
+				}
+			} else {
+				conn.setAutoCommit(false);
+			}
+
 			int num = 0, comm = 0, cont_comm = 0;
 			String nom, ced;
 
-			if (rs.next()) {
-				num = rs.getInt("idpersona");
-				preparedStatement = conn.prepareStatement(delete1);
-				preparedStatement.executeUpdate();
-				// missatge = "La ultima fila de la taula persona es la numero " + num;
-			} else {
-				num = 0;
-				// missatge = "No hi ha dades a la taula persona.";
+			if (nova.equals(false)) {
+				if (rs.next()) {
+					num = rs.getInt("idpersona");
+					preparedStatement = conn.prepareStatement(delete1);
+					preparedStatement.executeUpdate();
+					conn.commit();
+					// missatge = "La ultima fila de la taula persona es la numero " + num;
+				} else {
+					num = 0;
+					// missatge = "No hi ha dades a la taula persona.";
+				}
 			}
 
-			for (num = 1; num <= 2000; num++) {
+			for (num = 1; num <= 3000; num++) {
 				comm++;
 				preparedStatement = conn.prepareStatement(insert1);
 				preparedStatement.setInt(1, num);
-				nom = "Lluis" + num;
-				ced = "Cedula" + num;
+				nom = "Prova amb Postgres" + num;
+				ced = num + " - " + hora;
 				preparedStatement.setString(2, nom);
 				preparedStatement.setString(3, ced);
 				preparedStatement.executeUpdate();
-				if (comm == 100) {
+				if (comm == 100 && nova.equals(false)) {
 					conn.commit();
 					// System.out.println("S'ha fet un comit.");
 					comm = 0;
