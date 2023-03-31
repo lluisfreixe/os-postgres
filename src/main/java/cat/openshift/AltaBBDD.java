@@ -21,7 +21,9 @@ import java.util.Date;
 @WebServlet("/")
 public class AltaBBDD extends HttpServlet {
 
+	// ================================================
 	// Declarar variables - v3
+	// ================================================
 
 	private static final long serialVersionUID = 1L;
 	private final String url1 = "jdbc:postgresql://localhost/postgres";
@@ -40,67 +42,103 @@ public class AltaBBDD extends HttpServlet {
 	protected void request(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		String ipAddress = request.getRemoteAddr();
-		String missatge = "";
-
-		// Drivers de Postgres
 		// ================================================
-		try {
-			Class.forName("org.postgresql.Driver");
-		} catch (ClassNotFoundException ex) {
-			missatge = "Error al registrar el driver de PostgreSQL: " + ex;
-		}
-
-		// Connectar-se a la BBDD
+		// Declarar variables - v3
 		// ================================================
+
 		Connection conn = null;
 		PreparedStatement preparedStatement = null;
 		ResultSet rs = null;
 		Statement stmt = null;
+
+		String ipAddress = request.getRemoteAddr();
+		String missatge = "";
 		Boolean nova = false;
+		Boolean error = false;
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		Date date = new Date();
 		String hora = dateFormat.format(date);
+		int num = 0, comm = 0, cont_comm = 0;
+		String nom, ced;
+
+		// ================================================
+		// Drivers de Postgres
+		// ================================================
 
 		try {
-			if (ipAddress.equals("127.0.0.1")) {
-				conn = DriverManager.getConnection(url1, user, password);
-			} else {
-				conn = DriverManager.getConnection(url2, user, password);
-			}
-		} catch (java.sql.SQLException sqle) {
-			missatge = "Error de connexio: " + sqle;
+			Class.forName("org.postgresql.Driver");
+		} catch (ClassNotFoundException ex) {
+			missatge = "Error al registrar el driver de PostgreSQL: " + ex;
+			error = true;
 		}
 
-		// Executar la sentencia SQL
 		// ================================================
-		try {
+		// Connectar a la BBDD PostgresSQL
+		// ================================================
+
+		if (error.equals(false)) {
+			try {
+				if (ipAddress.equals("127.0.0.1")) {
+					conn = DriverManager.getConnection(url1, user, password);
+				} else {
+					conn = DriverManager.getConnection(url2, user, password);
+				}
+			} catch (java.sql.SQLException sqle) {
+				missatge = "Error de connexio: " + sqle;
+				error = true;
+			}
+		}
+
+		// ================================================
+		// Verificar si hi ha alguna fila a la taula.
+		// ================================================
+
+		if (error.equals(false)) {
 			try {
 				preparedStatement = conn.prepareStatement(query1);
 				rs = preparedStatement.executeQuery();
 			} catch (Exception e) {
 				nova = true;
 			}
+		}
 
-			if (nova.equals(true)) {
-				try {
-					conn.setAutoCommit(true);
-					stmt = conn.createStatement();
-					stmt.executeUpdate(create1);
-					//conn.commit();
-				} catch (java.sql.SQLException sqle) {
-					missatge = "Error de SQLException: " + sqle;
-				} catch (Exception e) {
-					missatge = "Error de Exception: " + e;
-				}
-			} else {
-				conn.setAutoCommit(false);
+		// ================================================
+		// Crear la taula quan no existeix.
+		// ================================================
+
+		if (error.equals(false) && nova.equals(true)) {
+			try {
+				conn.setAutoCommit(true);
+				stmt = conn.createStatement();
+				stmt.executeUpdate(create1);
+				// conn.commit();
+			} catch (java.sql.SQLException sqle) {
+				missatge = "Error create SQLException: " + sqle;
+				error = true;
+			} catch (Exception e) {
+				missatge = "Error create Exception: " + e;
+				error = true;
 			}
+		}
 
-			int num = 0, comm = 0, cont_comm = 0;
-			String nom, ced;
+		if (error.equals(false) && nova.equals(false)) {
+			try {
+				conn.setAutoCommit(false);
+			} catch (java.sql.SQLException sqle) {
+				missatge = "Error autocommit SQLException: " + sqle;
+				error = true;
+			} catch (Exception e) {
+				missatge = "Error autocommit Exception: " + e;
+				error = true;
+			}
+		}
 
-			if (nova.equals(false)) {
+		// ================================================
+		// Esborrar les files quan existeixen.
+		// ================================================
+
+		if (nova.equals(false) && error.equals(false)) {
+			try {
 				if (rs.next()) {
 					num = rs.getInt("idpersona");
 					preparedStatement = conn.prepareStatement(delete1);
@@ -109,43 +147,43 @@ public class AltaBBDD extends HttpServlet {
 					// missatge = "La ultima fila de la taula persona es la numero " + num;
 				} else {
 					num = 0;
-					// missatge = "No hi ha dades a la taula persona.";
 				}
+			} catch (java.sql.SQLException sqle) {
+				missatge = "Error delete SQLException: " + sqle;
+			} catch (Exception e) {
+				missatge = "Error delete Exception: " + e;
 			}
+		}
 
-			for (num = 1; num <= 3000; num++) {
-				comm++;
-				preparedStatement = conn.prepareStatement(insert1);
-				preparedStatement.setInt(1, num);
-				nom = "Prova amb Postgres" + num;
-				ced = num + " - " + hora;
-				preparedStatement.setString(2, nom);
-				preparedStatement.setString(3, ced);
-				preparedStatement.executeUpdate();
-				if (comm == 100 && nova.equals(false)) {
-					conn.commit();
-					// System.out.println("S'ha fet un comit.");
-					comm = 0;
-					cont_comm++;
+		// ================================================
+		// Bucle per inserir les noves files
+		// ================================================
+
+		if (error.equals(false)) {
+			try {
+				for (num = 1; num <= 3000; num++) {
+					comm++;
+					preparedStatement = conn.prepareStatement(insert1);
+					preparedStatement.setInt(1, num);
+					nom = "Prova amb Postgres" + num;
+					ced = num + " - " + hora;
+					preparedStatement.setString(2, nom);
+					preparedStatement.setString(3, ced);
+					preparedStatement.executeUpdate();
+					if (comm == 100 && nova.equals(false)) {
+						conn.commit();
+						// System.out.println("S'ha fet un comit.");
+						comm = 0;
+						cont_comm++;
+					}
 				}
+				missatge = "Alta correcta i s'han fet " + cont_comm + " commits.";
+				conn.close();
+			} catch (java.sql.SQLException sqle) {
+				missatge = "Error insert SQLException: " + sqle;
+			} catch (Exception e) {
+				missatge = "Error insert Exception: " + e;
 			}
-
-			/*
-			 * num++; preparedStatement = conn.prepareStatement(insert1);
-			 * preparedStatement.setInt(1, num); nom = "Lluis"; ced = "Cedula1";
-			 * preparedStatement.setString(2, nom); preparedStatement.setString(3, ced);
-			 * preparedStatement.executeUpdate();
-			 */
-
-			// missatge = "Alta fila amb numero: " + num + " nom: " + nom + " cedula: " +
-			// ced + ".";
-			missatge = "Alta correcta i s'han fet " + cont_comm + " commits.";
-
-			conn.close();
-		} catch (java.sql.SQLException sqle) {
-			missatge = "Error de SQLException: " + sqle;
-		} catch (Exception e) {
-			missatge = "Error de Exception: " + e;
 		}
 
 		request.setAttribute("miss", missatge);
