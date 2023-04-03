@@ -43,7 +43,7 @@ public class AltaBBDD extends HttpServlet {
 			throws ServletException, IOException {
 
 		// ================================================
-		// Declarar variables - v3
+		// Declarar variables
 		// ================================================
 
 		Connection conn = null;
@@ -104,6 +104,7 @@ public class AltaBBDD extends HttpServlet {
 
 		// ================================================
 		// Crear la taula quan no existeix.
+		// I despres deixar el autocommit a false
 		// ================================================
 
 		if (error.equals(false) && nova.equals(true)) {
@@ -170,14 +171,14 @@ public class AltaBBDD extends HttpServlet {
 					preparedStatement.setString(2, nom);
 					preparedStatement.setString(3, ced);
 					preparedStatement.executeUpdate();
-					if (comm == 100 && nova.equals(false)) {
+					if (comm == 1000 && nova.equals(false)) {
 						conn.commit();
 						// System.out.println("S'ha fet un comit.");
 						comm = 0;
 						cont_comm++;
 					}
 				}
-				missatge = "Alta correcta i s'han fet " + cont_comm + " commits.";
+				missatge = "V1-Alta correcta i s'han fet " + cont_comm + " commits.";
 				conn.close();
 			} catch (java.sql.SQLException sqle) {
 				missatge = "Error insert SQLException: " + sqle;
