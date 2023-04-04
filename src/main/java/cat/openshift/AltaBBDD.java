@@ -29,6 +29,7 @@ public class AltaBBDD extends HttpServlet {
 	private final String url1 = "jdbc:postgresql://localhost/postgres";
 	//private final String url2 = "jdbc:postgresql://172.30.179.78:5432/postgres";
 	private final String url2 = "jdbc:postgresql://postgresql:5432/postgres";
+	private String url = "";
 	private final String user = "postgres";
 	private final String password = "password";
 	private static final String create1 = "CREATE TABLE persona (idpersona INT NOT NULL, nombre VARCHAR (30) NOT NULL, cedula VARCHAR (30) NOT NULL)";
@@ -81,8 +82,10 @@ public class AltaBBDD extends HttpServlet {
 			try {
 				if (ipAddress.equals("127.0.0.1")) {
 					conn = DriverManager.getConnection(url1, user, password);
+					url = url1;
 				} else {
 					conn = DriverManager.getConnection(url2, user, password);
+					url = url2;
 				}
 			} catch (java.sql.SQLException sqle) {
 				missatge = "Error de connexio: " + sqle;
@@ -179,7 +182,7 @@ public class AltaBBDD extends HttpServlet {
 						cont_comm++;
 					}
 				}
-				missatge = "V1-Alta correcta i s'han fet " + cont_comm + " commits.";
+				missatge = "Alta correcta. Numero de commits: " + cont_comm + ". URL connexio BBDD: " + url;
 				conn.close();
 			} catch (java.sql.SQLException sqle) {
 				missatge = "Error insert SQLException: " + sqle;
