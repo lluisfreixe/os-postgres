@@ -27,7 +27,8 @@ public class AltaBBDD extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private final String url1 = "jdbc:postgresql://localhost/postgres";
-	private final String url2 = "jdbc:postgresql://172.30.179.78:5432/postgres";
+	//private final String url2 = "jdbc:postgresql://172.30.179.78:5432/postgres";
+	private final String url2 = "jdbc:postgresql://postgresql:5432/postgres";
 	private final String user = "postgres";
 	private final String password = "password";
 	private static final String create1 = "CREATE TABLE persona (idpersona INT NOT NULL, nombre VARCHAR (30) NOT NULL, cedula VARCHAR (30) NOT NULL)";
