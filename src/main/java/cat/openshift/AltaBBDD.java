@@ -26,9 +26,9 @@ public class AltaBBDD extends HttpServlet {
 	// ================================================
 
 	private static final long serialVersionUID = 1L;
-	private final String url1 = "jdbc:postgresql://localhost/postgres";
+	private final String url1 = "jdbc:postgresql://localhost:5432/postgres";
 	//private final String url2 = "jdbc:postgresql://172.30.179.78:5432/postgres";
-	private final String url2 = "jdbc:postgresql://postgresql:5432/postgres";
+	//private final String url2 = "jdbc:postgresql://postgresql:5432/postgres";
 	private String url = "";
 	private final String user = "postgres";
 	private final String password = "password";
@@ -84,8 +84,8 @@ public class AltaBBDD extends HttpServlet {
 					conn = DriverManager.getConnection(url1, user, password);
 					url = url1;
 				} else {
-					conn = DriverManager.getConnection(url2, user, password);
-					url = url2;
+					conn = DriverManager.getConnection(url1, user, password);
+					url = url1;
 				}
 			} catch (java.sql.SQLException sqle) {
 				missatge = "Error de connexio: " + sqle;
